@@ -51,7 +51,7 @@ class State:
         """
         Compares two State objects based on state names
         :param name the Name of a state to compare
-        :return ? (str): ?
+        :return boolean if this state name is greater than compared state name 
         """
         return self.name > name
 
