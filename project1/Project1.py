@@ -50,7 +50,8 @@ def main():
 
 def mainMenu(states):
     """
-    Displays a looping menu until user 
+    Displays a looping menu until user entry to quit
+    :param states a list of states
     """
 
     nameSorted = False
@@ -119,6 +120,10 @@ def merge(states, workSpace, lowPtr, highPtr, upperBound):
 
 
 def sortMerge(states):
+    """
+    Merge sort states list by case fatality rate
+    :param states a list of states
+    """
     elems = len(states)
     workSpace = [None] * elems
     sortMergeRec(states, workSpace, 0, elems-1)
@@ -133,74 +138,81 @@ def sortMergeRec(states, workSpace, lowerBound, upperBound):
     merge(states, workSpace, lowerBound, mid+1, upperBound) # merge them
 
 def printSpearmansRHOMatrix(states):
+    """
+    Print Spearman's r correlation matrix
+    :param states a list of states
+    """
+    length = len(states)
+    caseRateFVR = 0
+    caseRateMHI = 0
+    caseRateVCR = 0
+    deathRateFVR = 0
+    deathRateMHI = 0
+    deathRateVCR = 0
+    divisor = length * (math.pow(length, 2) - 1)
+    stateCases = states[:]
+    stateDeaths = states[:]
+    stateMHI = states[:]
+    stateVCR = states[:]
+    stateFVR = states[:]
+    line = "-" * 50
 
-        length = len(states)
-        caseRateFVR = 0
-        caseRateMHI = 0
-        caseRateVCR = 0
-        deathRateFVR = 0
-        deathRateMHI = 0
-        deathRateVCR = 0
-        divisor = length * (math.pow(length, 2) - 1)
-        stateCases = states[:]
-        stateDeaths = states[:]
-        stateMHI = states[:]
-        stateVCR = states[:]
-        stateFVR = states[:]
-        line = "-" * 50
+    # bubble sort stateCases by case rate, stateDeaths by death rate,
+    # state FVR by FVR, state MHI by MHI, and state VCR by VCR
+    for i in range(0, length):
+        for j in range(0, length):
+            if stateCases[j - 1].getCaseRate() > stateCases[j].getCaseRate():
+                swap(stateCases, j, j - 1)
+            if stateDeaths[j - 1].getDeathRate() > stateDeaths[j].getDeathRate():
+                swap(stateDeaths, j, j - 1)
+            if stateFVR[j - 1].getFVR() > stateFVR[j].getFVR():
+                swap(stateFVR, j, j - 1)
+            if stateMHI[j - 1].getMHI() > stateMHI[j].getMHI():
+                swap(stateMHI, j, j - 1)
+            if stateVCR[j - 1].getVCR() > stateVCR[j].getVCR():
+                swap(stateVCR, j, j - 1)
 
-        # bubble sort stateCases by case rate, stateDeaths by death rate,
-        # state FVR by FVR, state MHI by MHI, and state VCR by VCR
-        for i in range(0, length):
-            for j in range(0, length):
-                if stateCases[j - 1].getCaseRate() > stateCases[j].getCaseRate():
-                    swap(stateCases, j, j - 1)
-                if stateDeaths[j - 1].getDeathRate() > stateDeaths[j].getDeathRate():
-                    swap(stateDeaths, j, j - 1)
-                if stateFVR[j - 1].getFVR() > stateFVR[j].getFVR():
-                    swap(stateFVR, j, j - 1)
-                if stateMHI[j - 1].getMHI() > stateMHI[j].getMHI():
-                    swap(stateMHI, j, j - 1)
-                if stateVCR[j - 1].getVCR() > stateVCR[j].getVCR():
-                    swap(stateVCR, j, j - 1)
+    # sum Ds for case rate and MHI, death rate and MHI, case rate and VCR,
+    # and death rate and VCR
+    for i in range(0, length):
+        for j in range(0, length):
+            if stateCases[i].getName() == stateFVR[j].getName():
+                caseRateFVR += math.pow(i - j, 2)
+            if stateDeaths[i].getName() == stateFVR[j].getName():
+                deathRateFVR += math.pow(i - j, 2)
+            if stateCases[i].getName() == stateMHI[j].getName():
+                caseRateMHI += math.pow(i - j, 2)
+            if stateDeaths[i].getName() == stateMHI[j].getName():
+                deathRateMHI += math.pow(i - j, 2)
+            if stateCases[i].getName() == stateVCR[j].getName():
+                caseRateVCR += math.pow(i - j, 2)
+            if stateDeaths[i].getName() == stateVCR[j].getName():
+                deathRateVCR += math.pow(i - j, 2)
 
-        # sum Ds for case rate and MHI, death rate and MHI, case rate and VCR,
-        # and death rate and VCR
-        for i in range(0, length):
-            for j in range(0, length):
-                if stateCases[i].getName() == stateFVR[j].getName():
-                    caseRateFVR += math.pow(i - j, 2)
-                if stateDeaths[i].getName() == stateFVR[j].getName():
-                    deathRateFVR += math.pow(i - j, 2)
-                if stateCases[i].getName() == stateMHI[j].getName():
-                    caseRateMHI += math.pow(i - j, 2)
-                if stateDeaths[i].getName() == stateMHI[j].getName():
-                    deathRateMHI += math.pow(i - j, 2)
-                if stateCases[i].getName() == stateVCR[j].getName():
-                    caseRateVCR += math.pow(i - j, 2)
-                if stateDeaths[i].getName() == stateVCR[j].getName():
-                    deathRateVCR += math.pow(i - j, 2)
+    caseRateFVR  = 1 - (6 * caseRateFVR)  / divisor
+    deathRateFVR = 1 - (6 * deathRateFVR) / divisor
+    caseRateMHI  = 1 - (6 * caseRateMHI)  / divisor
+    deathRateMHI = 1 - (6 * deathRateMHI) / divisor
+    caseRateVCR  = 1 - (6 * caseRateVCR)  / divisor
+    deathRateVCR = 1 - (6 * deathRateVCR) / divisor
 
-        caseRateFVR  = 1 - (6 * caseRateFVR)  / divisor
-        deathRateFVR = 1 - (6 * deathRateFVR) / divisor
-        caseRateMHI  = 1 - (6 * caseRateMHI)  / divisor
-        deathRateMHI = 1 - (6 * deathRateMHI) / divisor
-        caseRateVCR  = 1 - (6 * caseRateVCR)  / divisor
-        deathRateVCR = 1 - (6 * deathRateVCR) / divisor
-
-        print("\n%s" % line)
-        print("|%10s  |%7s    |%7s    |%7s    |"
-              % ("COVID-19", "MHI", "VCR", "FVR"))
-        print(line)
-        print("| Case Rate  |%9.4f  |%9.4f  |%9.4f  |"
-              % (caseRateMHI, caseRateVCR, caseRateFVR))
-        print(line)
-        print("| Death Rate |%9.4f  |%9.4f  |%9.4f  |"
-              % (deathRateMHI, deathRateVCR, deathRateFVR))
-        print(line, "\n")
+    print("\n%s" % line)
+    print("|%10s  |%7s    |%7s    |%7s    |"
+            % ("COVID-19", "MHI", "VCR", "FVR"))
+    print(line)
+    print("| Case Rate  |%9.4f  |%9.4f  |%9.4f  |"
+            % (caseRateMHI, caseRateVCR, caseRateFVR))
+    print(line)
+    print("| Death Rate |%9.4f  |%9.4f  |%9.4f  |"
+            % (deathRateMHI, deathRateVCR, deathRateFVR))
+    print(line, "\n")
 
 
 def printStates(states):
+    """
+    Print all states in the list in a table with column header
+    :param states a list of states
+    """
     print("\n%-14s %-11s %-12s %-13s %-13s %-13s %s" %
             ("Name", "MHI", "VCR", "CFR", "Case Rate", "Death Rate", "FVR"))
     print("-" * 89)
@@ -217,6 +229,12 @@ def printStates(states):
 
 
 def search(states, nameSorted):
+    """
+    Search for a given state, if sorted by name used binary search,
+    otherwise use sequential search, prints an error if state is not found
+    :param states a list of states
+    :param nameSorted boolean to represent if the states are sorted by name
+    """
     name = input("\nEnter State name: ")
     if nameSorted:
         searchBinary(states, name)
