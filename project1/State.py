@@ -47,16 +47,13 @@ class State:
         self.mhi = mhi
         self.vcr = vcr
 
-    def __gt__(nameA, nameB):
+    def __gt__(self, name):
         """
         Compares two State objects based on state names
-
-        :param nameA the name of state A
-        :param nameB the Name of state B
-
+        :param name the Name of a state to compare
         :return ? (str): ?
         """
-        return nameA if nameA > nameB else nameB
+        return self.name > name
 
         
     def __str__(self):
