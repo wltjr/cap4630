@@ -176,7 +176,7 @@ def printSpearmansRHOMatrix(states):
     # bubble sort stateCases by case rate, stateDeaths by death rate,
     # state FVR by FVR, state MHI by MHI, and state VCR by VCR
     for i in range(0, length):
-        for j in range(0, length):
+        for j in range(1, length):
             if stateCases[j - 1].getCaseRate() > stateCases[j].getCaseRate():
                 swap(stateCases, j, j - 1)
             if stateDeaths[j - 1].getDeathRate() > stateDeaths[j].getDeathRate():
