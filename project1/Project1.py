@@ -21,8 +21,8 @@ Email: n01479416@unf.edu
 
 def main():
     """
-    State class represents one of the 50 states of the United States of
-    America with various attributes relating to the COVID-19 pandemic.
+    Main function invoked when the program is run. Reads a hardcoded
+    States.csv file and presents the user with a menu of actions available
     """
 
     print("\nCAP4640 Project 1\nInstructor: Xudong Liu\n")
@@ -92,6 +92,15 @@ def mainMenu(states):
 
 
 def merge(states, workSpace, lowPtr, highPtr, upperBound):
+    """
+    Merge function, sorts list elements in temporary workspace and merges them
+    back into original list
+    :param states a list of states
+    :param workSpace a list the size of states used for temporary storage
+    :param lowPtr the low index pointer
+    :param highPtr the high index pointer
+    :param upperBound the upper bound index of the list
+    """
     j = 0
     lowerBound = lowPtr
     mid = highPtr - 1
@@ -130,6 +139,13 @@ def sortMerge(states):
 
 
 def sortMergeRec(states, workSpace, lowerBound, upperBound):
+    """
+    Merge sort recursive function, splits up list recursively, sorts and merges
+    :param states a list of states
+    :param workSpace a list the size of states used for temporary storage
+    :param lowerBound the lower bound index of the list
+    :param upperBound the upper bound index of the list
+    """
     if lowerBound == upperBound:
         return
     mid = (lowerBound+upperBound) // 2
@@ -243,6 +259,13 @@ def search(states, nameSorted):
 
 
 def searchBinary(states, name):
+    """
+    Search for state by name by splitting the list each iteration, binary search
+    Prints the state data in a single column key/value format, or
+    prints an error if the state is not found
+    :param states a list of states
+    :param name the name of a state to search the list for
+    """
     print("Binary search\n")
     cur = 0
     lower = 0
@@ -263,6 +286,13 @@ def searchBinary(states, name):
 
 
 def searchSequential(states, name):
+    """
+    Search for state by name using sequential list order, sequential search
+    Prints the state data in a single column key/value format, or
+    prints an error if the state is not found
+    :param states a list of states
+    :param name the name of a state to search the list for
+    """
     print("Sequential search\n")
     for s in states:
         if s.getName() == name:
@@ -272,6 +302,13 @@ def searchSequential(states, name):
 
 
 def sortQuickRec(states, left, right):
+    """
+    Quicksort recursive function 
+    :param states a list of states
+    :param left the left position index
+    :param right the right position index
+    :param pivot a pivot value, a state name
+    """
     if right-left <= 0:                                 # if size <= 1
         return                                          # it’s already sorted
     pivot = states[right].getName()                     # rightmost item
@@ -281,11 +318,25 @@ def sortQuickRec(states, left, right):
     sortQuickRec(states, partition+1, right)            # sort right side
 
 
-def swap(states, a, b):  
+def swap(states, a, b):
+    """
+    Swap positions in list
+    :param states a list of states
+    :param a the position index to swap with b
+    :param b the position index to swap with a
+    """
     states[a], states[b] = states[b], states[a]
 
 
 def partitionIt(states, left, right, pivot):
+    """
+    Split the list into two partitions based on a pivot value
+    :param states a list of states
+    :param left the left position index
+    :param right the right position index
+    :param pivot a pivot value, a state name
+    :return the left index pointer (left index value) 
+    """
     leftPtr = left                                          # left    (after ++)
     rightPtr = right                                        # right-1 (after --)
     while True:
