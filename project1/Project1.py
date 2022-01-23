@@ -281,10 +281,8 @@ def sortQuickRec(states, left, right):
     sortQuickRec(states, partition+1, right)            # sort right side
 
 
-def swap(states, a, b):
-    temp = states[a]
-    states[a] = states[b]
-    states[b] = temp
+def swap(states, a, b):  
+    states[a], states[b] = states[b], states[a]
 
 
 def partitionIt(states, left, right, pivot):
