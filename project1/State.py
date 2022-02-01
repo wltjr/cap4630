@@ -58,12 +58,13 @@ class State:
         
     def __str__(self):
         """
-        Prints a state object's information as formatted columns
+        Prints a state object's information as a string
         """
-        return "%s %s %s %d %d %d %d %.1f\n" % (
+        return "%s %s %s %d %d %d %.2f %d %.2f %.6f %.3f %d %.1f\n" % (
                              self.name, self.capitol, self.region,
-                             self.population, self.covidCases, self.covidDeaths,
-                             self.mhi, self.vcr)
+                             self.houseSeats, self.population, self.covidCases,
+                             self.caseRate, self.covidDeaths, self.deathRate,
+                             self.cfr, self.fvr, self.mhi, self.vcr)
         
     def printState(self):
         """
