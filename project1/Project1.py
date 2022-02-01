@@ -15,7 +15,7 @@ This is a command line program. A properly formatted CVS file with states
 date must be specified at runtime for the program to operate correctly.
 
 Author: William L. Thomson Jr.
-Version: 1/22/2022
+Version: 1/31/2022
 Email: n01479416@unf.edu
 """
 
@@ -183,6 +183,9 @@ def printSpearmansRHOMatrix(states):
                 swap(stateDeaths, j, j - 1)
             if stateFVR[j - 1].getFVR() > stateFVR[j].getFVR():
                 swap(stateFVR, j, j - 1)
+            elif stateFVR[j - 1].getFVR() == stateFVR[j].getFVR():
+                if stateFVR[j - 1].__gt__(stateFVR[j].getName()):
+                    swap(stateFVR, j - 1, j)
             if stateMHI[j - 1].getMHI() > stateMHI[j].getMHI():
                 swap(stateMHI, j, j - 1)
             if stateVCR[j - 1].getVCR() > stateVCR[j].getVCR():
