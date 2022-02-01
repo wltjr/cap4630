@@ -7,12 +7,9 @@ from State import *
 CAP 4640: Project 1 - Python Basics
 
 Project1 is an executable program that reads states from a CSV file,
-specified at runtime storing them in a list. The program provides means to
+hard coded, storing them in a list. The program provides means to
 sort the states, print all states, find and print a state, and prints a
-Spearman's rho correlation matrix.
-
-This is a command line program. A properly formatted CVS file with states 
-date must be specified at runtime for the program to operate correctly.
+Spearman's rho correlation matrix. This is a command line program.
 
 Author: William L. Thomson Jr.
 Version: 1/31/2022
