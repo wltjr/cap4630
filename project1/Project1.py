@@ -233,7 +233,7 @@ def printStates(states):
             ("Name", "MHI", "VCR", "CFR", "Case Rate", "Death Rate", "FVR"))
     print("-" * 89)
     for s in states:
-        print("%-14s %-11d %-12.1f %-13f %-13.2f %-13.2f %.3f" %
+        print("%-14s %-11d %-12.1f %-13f %-13.2f %6.2f %12.3f" %
               (s.getName(),
                 s.getMHI(),
                 s.getVCR(),
