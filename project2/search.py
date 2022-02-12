@@ -237,7 +237,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
             for state, action, cost in problem.getSuccessors(node.STATE):
                 child = Node(state, node, action, cost + heuristic(state, problem))
-                frontier.update(child, cost + heuristic(state, problem))
+                frontier.update(child, cost + heuristic(node.STATE, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
