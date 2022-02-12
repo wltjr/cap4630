@@ -166,16 +166,16 @@ def breadthFirstSearch(problem):
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
             while node.PARENT != None:
-                actions.append(node.ACTION)
+                actions.insert(0, node.ACTION)
                 node = node.PARENT
-            actions.reverse()
             return actions
-        explored.add(node.STATE)
+        if node.STATE not in explored:
+            explored.add(node.STATE)
 
-        for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, node.COST + cost)
-            if child.STATE not in explored:
-                frontier.push(child)
+            for state, action, cost in problem.getSuccessors(node.STATE):
+                child = Node(state, node, action, node.COST + cost)
+                if child.STATE not in explored:
+                    frontier.push(child)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -196,13 +196,12 @@ def uniformCostSearch(problem):
             while node.PARENT != None:
                 actions.insert(0, node.ACTION)
                 node = node.PARENT
-            actions.reverse()
             return actions
-        explored.add(node.STATE)
+        if node.STATE not in explored:
+            explored.add(node.STATE)
 
-        for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, node.COST + cost)
-            if child.STATE not in explored:
+            for state, action, cost in problem.getSuccessors(node.STATE):
+                child = Node(state, node, action, node.COST + cost)
                 frontier.update(child, node.COST + cost)
 
 
@@ -219,7 +218,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     from util import PriorityQueue
 
     frontier = PriorityQueue()
-    explored = set()
+    explored = []
     actions = []
 
     frontier.push(Node(problem.getStartState()), 0)
@@ -232,14 +231,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             while node.PARENT != None:
                 actions.insert(0, node.ACTION)
                 node = node.PARENT
-            actions.reverse()
             return actions
-        explored.add(node.STATE)
+        if node.STATE not in explored:
+            explored.insert(0,node.STATE)
 
-        for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, heuristic(state, problem))
-            if child.STATE not in explored:
-                frontier.update(child, heuristic(state, problem))
+            for state, action, cost in problem.getSuccessors(node.STATE):
+                child = Node(state, node, action, cost + heuristic(state, problem))
+                frontier.update(child, cost + heuristic(state, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
