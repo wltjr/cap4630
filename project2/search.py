@@ -73,37 +73,138 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 
+class Node:
 
+    def __init__(self, state, parent=None, action="", cost=0):
+        self.STATE = state
+        self.PARENT = parent
+        self.ACTION = action
+        self.COST = cost
+        self.VISITED = False
+
+def searchWrapper(problem, s):
+    from game import Directions
+    from util import Stack,Queue,PriorityQueue
+
+    if s == "dfs":
+        frontier = Stack()
+    elif s == "bfs":
+        frontier = Queue()
+    elif s == "ucs":
+        frontier = PriorityQueue()
+    explored = set()
+    actions = []
+
+    frontier.push(Node(problem.getStartState()))
+
+    while True:
+        if frontier.isEmpty():
+            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                if node.ACTION == "East":
+                    actions.insert(0,Directions.EAST)
+                elif node.ACTION == "South":
+                    actions.insert(0,Directions.SOUTH)
+                elif node.ACTION == "North":
+                    actions.insert(0,Directions.NORTH)
+                elif node.ACTION == "West":
+                    actions.insert(0,Directions.WEST)
+                node = node.PARENT
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, node.COST + cost)
+            if child.STATE not in explored:
+                frontier.push(child)
 
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
+    from game import Directions
+    from util import Stack
 
-    util.raiseNotDefined()
+    frontier = Stack()
+    explored = set()
+    actions = []
+
+    frontier.push(Node(problem.getStartState()))
+
+    while True:
+        if frontier.isEmpty():
+            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                actions.insert(0, node.ACTION)
+                node = node.PARENT
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, node.COST + cost)
+            if child.STATE not in explored:
+                frontier.push(child)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    from game import Directions
+    from util import Queue
 
-    util.raiseNotDefined()
+    frontier = Queue()
+    explored = set()
+    actions = []
 
+    frontier.push(Node(problem.getStartState()))
+
+    while True:
+        if frontier.isEmpty():
+            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                actions.append(node.ACTION)
+                node = node.PARENT
+            actions.reverse()
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, node.COST + cost)
+            if child.STATE not in explored:
+                frontier.push(child)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from game import Directions
+    from util import PriorityQueue
+
+    frontier = PriorityQueue()
+    explored = set()
+    actions = []
+
+    frontier.push(Node(problem.getStartState()), 0)
+
+    while True:
+        if frontier.isEmpty():
+            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                actions.insert(0, node.ACTION)
+                node = node.PARENT
+            actions.reverse()
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, node.COST + cost)
+            if child.STATE not in explored:
+                frontier.update(child, node.COST + cost)
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -114,12 +215,36 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    from game import Directions
+    from util import PriorityQueue
 
-    util.raiseNotDefined()
+    frontier = PriorityQueue()
+    explored = set()
+    actions = []
+
+    frontier.push(Node(problem.getStartState()), 0)
+
+    while True:
+        if frontier.isEmpty():
+            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                actions.insert(0, node.ACTION)
+                node = node.PARENT
+            actions.reverse()
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, heuristic(state, problem))
+            if child.STATE not in explored:
+                frontier.update(child, heuristic(state, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+
