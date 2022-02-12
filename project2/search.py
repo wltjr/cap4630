@@ -117,9 +117,7 @@ def depthFirstSearch(problem):
     frontier = util.Stack()
     explored = set()
     actions = []
-
     frontier.push(Node(problem.getStartState()))
-
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
@@ -128,7 +126,6 @@ def depthFirstSearch(problem):
                 node = node.PARENT
             return actions
         explored.add(node.STATE)
-
         for state, action, cost in problem.getSuccessors(node.STATE):
             child = Node(state, node, action, node.COST + cost)
             if child.STATE not in explored:
@@ -139,9 +136,7 @@ def breadthFirstSearch(problem):
     frontier = util.Queue()
     explored = set()
     actions = []
-
     frontier.push(Node(problem.getStartState()))
-
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
@@ -151,7 +146,6 @@ def breadthFirstSearch(problem):
             return actions
         if node.STATE not in explored:
             explored.add(node.STATE)
-
             for state, action, cost in problem.getSuccessors(node.STATE):
                 child = Node(state, node, action, node.COST + cost)
                 if child.STATE not in explored:
@@ -162,9 +156,7 @@ def uniformCostSearch(problem):
     frontier = util.PriorityQueue()
     explored = set()
     actions = []
-
     frontier.push(Node(problem.getStartState()), 0)
-
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
@@ -174,7 +166,6 @@ def uniformCostSearch(problem):
             return actions
         if node.STATE not in explored:
             explored.add(node.STATE)
-
             for state, action, cost in problem.getSuccessors(node.STATE):
                 child = Node(state, node, action, node.COST + cost)
                 frontier.update(child, node.COST + cost)
@@ -192,22 +183,21 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     frontier = util.PriorityQueue()
     explored = set()
     actions = []
-
+    path = util.PriorityQueue()
     frontier.push(Node(problem.getStartState()), 0)
-
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                actions.insert(0, node.ACTION)
-                node = node.PARENT
             return actions
         if node.STATE not in explored:
             explored.add(node.STATE)
-
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node, action, cost + heuristic(node.STATE, problem))
-                frontier.update(child, cost + heuristic(node.STATE, problem))
+                nodePath = actions + [action]
+                priority = problem.getCostOfActions(nodePath) + heuristic(state, problem)
+                if state not in explored:
+                    frontier.push(Node(state, node, action, priority), priority)
+                    path.push(nodePath, priority)
+        actions = path.pop()
 
 # Abbreviations
 bfs = breadthFirstSearch
