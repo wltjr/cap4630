@@ -83,51 +83,12 @@ class Node:
         self.VISITED = False
 
 def searchWrapper(problem, s):
-    from game import Directions
-    from util import Stack,Queue,PriorityQueue
-
     if s == "dfs":
-        frontier = Stack()
+        frontier = util.Stack()
     elif s == "bfs":
-        frontier = Queue()
+        frontier = util.Queue()
     elif s == "ucs":
-        frontier = PriorityQueue()
-    explored = set()
-    actions = []
-
-    frontier.push(Node(problem.getStartState()))
-
-    while True:
-        if frontier.isEmpty():
-            return actions # return failure
-        node = frontier.pop()
-        if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                if node.ACTION == "East":
-                    actions.insert(0,Directions.EAST)
-                elif node.ACTION == "South":
-                    actions.insert(0,Directions.SOUTH)
-                elif node.ACTION == "North":
-                    actions.insert(0,Directions.NORTH)
-                elif node.ACTION == "West":
-                    actions.insert(0,Directions.WEST)
-                node = node.PARENT
-            return actions
-        explored.add(node.STATE)
-
-        for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, node.COST + cost)
-            if child.STATE not in explored:
-                frontier.push(child)
-
-def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-    """
-    from game import Directions
-    from util import Stack
-
-    frontier = Stack()
+        frontier = util.PriorityQueue()
     explored = set()
     actions = []
 
@@ -149,20 +110,39 @@ def depthFirstSearch(problem):
             if child.STATE not in explored:
                 frontier.push(child)
 
-def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    from game import Directions
-    from util import Queue
-
-    frontier = Queue()
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+    """
+    frontier = util.Stack()
     explored = set()
     actions = []
 
     frontier.push(Node(problem.getStartState()))
 
     while True:
-        if frontier.isEmpty():
-            return actions # return failure
+        node = frontier.pop()
+        if problem.isGoalState(node.STATE):
+            while node.PARENT != None:
+                actions.insert(0, node.ACTION)
+                node = node.PARENT
+            return actions
+        explored.add(node.STATE)
+
+        for state, action, cost in problem.getSuccessors(node.STATE):
+            child = Node(state, node, action, node.COST + cost)
+            if child.STATE not in explored:
+                frontier.push(child)
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    frontier = util.Queue()
+    explored = set()
+    actions = []
+
+    frontier.push(Node(problem.getStartState()))
+
+    while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
             while node.PARENT != None:
@@ -179,18 +159,13 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    from game import Directions
-    from util import PriorityQueue
-
-    frontier = PriorityQueue()
+    frontier = util.PriorityQueue()
     explored = set()
     actions = []
 
     frontier.push(Node(problem.getStartState()), 0)
 
     while True:
-        if frontier.isEmpty():
-            return actions # return failure
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
             while node.PARENT != None:
@@ -214,18 +189,13 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    from game import Directions
-    from util import PriorityQueue
-
-    frontier = PriorityQueue()
-    explored = []
+    frontier = util.PriorityQueue()
+    explored = set()
     actions = []
 
     frontier.push(Node(problem.getStartState()), 0)
 
     while True:
-        if frontier.isEmpty():
-            return actions # return failure
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
             while node.PARENT != None:
@@ -233,10 +203,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 node = node.PARENT
             return actions
         if node.STATE not in explored:
-            explored.insert(0,node.STATE)
+            explored.add(node.STATE)
 
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node, action, cost + heuristic(state, problem))
+                child = Node(state, node, action, cost + heuristic(node.STATE, problem))
                 frontier.update(child, cost + heuristic(node.STATE, problem))
 
 # Abbreviations
