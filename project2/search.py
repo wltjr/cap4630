@@ -74,41 +74,12 @@ def tinyMazeSearch(problem):
 
 
 class Node:
-
     def __init__(self, state, parent=None, action="", cost=0):
         self.STATE = state
         self.PARENT = parent
         self.ACTION = action
         self.COST = cost
-        self.VISITED = False
 
-def searchWrapper(problem, s):
-    if s == "dfs":
-        frontier = util.Stack()
-    elif s == "bfs":
-        frontier = util.Queue()
-    elif s == "ucs":
-        frontier = util.PriorityQueue()
-    explored = set()
-    actions = []
-
-    frontier.push(Node(problem.getStartState()))
-
-    while True:
-        if frontier.isEmpty():
-            return actions # return failure
-        node = frontier.pop()
-        if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                actions.insert(0, node.ACTION)
-                node = node.PARENT
-            return actions
-        explored.add(node.STATE)
-
-        for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, node.COST + cost)
-            if child.STATE not in explored:
-                frontier.push(child)
 
 def depthFirstSearch(problem):
     """
@@ -131,6 +102,7 @@ def depthFirstSearch(problem):
             if child.STATE not in explored:
                 frontier.push(child)
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     frontier = util.Queue()
@@ -150,6 +122,7 @@ def breadthFirstSearch(problem):
                 child = Node(state, node, action, node.COST + cost)
                 if child.STATE not in explored:
                     frontier.push(child)
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -178,6 +151,7 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     frontier = util.PriorityQueue()
@@ -204,5 +178,3 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
-
-
