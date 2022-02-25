@@ -74,7 +74,7 @@ def tinyMazeSearch(problem):
 
 
 class Node:
-    def __init__(self, state, parent=None, action="", cost=0):
+    def __init__(self, state, parent=None, action=[], cost=0):
         self.STATE = state
         self.PARENT = parent
         self.ACTION = action
@@ -156,22 +156,18 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     frontier = util.PriorityQueue()
     explored = set()
-    actions = []
-    path = util.PriorityQueue()
     frontier.push(Node(problem.getStartState()), 0)
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            return actions
+            return node.ACTION
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                nodePath = actions + [action]
+                nodePath = node.ACTION + [action]
                 priority = problem.getCostOfActions(nodePath) + heuristic(state, problem)
                 if state not in explored:
-                    frontier.push(Node(state, node, action, priority), priority)
-                    path.push(nodePath, priority)
-        actions = path.pop()
+                    frontier.push(Node(state, node, nodePath, priority), priority)
 
 # Abbreviations
 bfs = breadthFirstSearch
