@@ -74,10 +74,9 @@ def tinyMazeSearch(problem):
 
 
 class Node:
-    def __init__(self, state, actions=[], cost=0):
+    def __init__(self, state, actions=[]):
         self.STATE = state
         self.ACTIONS = actions
-        self.COST = cost
 
 
 def depthFirstSearch(problem):
@@ -93,7 +92,7 @@ def depthFirstSearch(problem):
             return node.ACTIONS
         explored.add(node.STATE)
         for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node.ACTIONS + [action], node.COST + cost)
+            child = Node(state, node.ACTIONS + [action])
             if child.STATE not in explored:
                 frontier.push(child)
 
@@ -110,7 +109,7 @@ def breadthFirstSearch(problem):
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node.ACTIONS + [action], node.COST + cost)
+                child = Node(state, node.ACTIONS + [action])
                 if child.STATE not in explored:
                     frontier.push(child)
 
@@ -127,8 +126,8 @@ def uniformCostSearch(problem):
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node.ACTIONS + [action], node.COST + cost)
-                frontier.update(child, node.COST + cost)
+                child = Node(state, node.ACTIONS + [action])
+                frontier.update(child, problem.getCostOfActions(child.ACTIONS) + cost)
 
 
 def nullHeuristic(state, problem=None):
@@ -154,7 +153,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 nodePath = node.ACTIONS + [action]
                 priority = problem.getCostOfActions(nodePath) + heuristic(state, problem)
                 if state not in explored:
-                    frontier.push(Node(state, nodePath, priority), priority)
+                    frontier.push(Node(state, nodePath), priority)
 
 # Abbreviations
 bfs = breadthFirstSearch
