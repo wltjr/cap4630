@@ -74,10 +74,9 @@ def tinyMazeSearch(problem):
 
 
 class Node:
-    def __init__(self, state, parent=None, action=[], cost=0):
+    def __init__(self, state, actions=[], cost=0):
         self.STATE = state
-        self.PARENT = parent
-        self.ACTION = action
+        self.ACTIONS = actions
         self.COST = cost
 
 
@@ -87,18 +86,14 @@ def depthFirstSearch(problem):
     """
     frontier = util.Stack()
     explored = set()
-    actions = []
     frontier.push(Node(problem.getStartState()))
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                actions.insert(0, node.ACTION)
-                node = node.PARENT
-            return actions
+            return node.ACTIONS
         explored.add(node.STATE)
         for state, action, cost in problem.getSuccessors(node.STATE):
-            child = Node(state, node, action, node.COST + cost)
+            child = Node(state, node.ACTIONS + [action], node.COST + cost)
             if child.STATE not in explored:
                 frontier.push(child)
 
@@ -107,19 +102,15 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     frontier = util.Queue()
     explored = set()
-    actions = []
     frontier.push(Node(problem.getStartState()))
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                actions.insert(0, node.ACTION)
-                node = node.PARENT
-            return actions
+            return node.ACTIONS
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node, action, node.COST + cost)
+                child = Node(state, node.ACTIONS + [action], node.COST + cost)
                 if child.STATE not in explored:
                     frontier.push(child)
 
@@ -128,19 +119,15 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     frontier = util.PriorityQueue()
     explored = set()
-    actions = []
     frontier.push(Node(problem.getStartState()), 0)
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            while node.PARENT != None:
-                actions.insert(0, node.ACTION)
-                node = node.PARENT
-            return actions
+            return node.ACTIONS
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                child = Node(state, node, action, node.COST + cost)
+                child = Node(state, node.ACTIONS + [action], node.COST + cost)
                 frontier.update(child, node.COST + cost)
 
 
@@ -160,14 +147,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     while True:
         node = frontier.pop()
         if problem.isGoalState(node.STATE):
-            return node.ACTION
+            return node.ACTIONS
         if node.STATE not in explored:
             explored.add(node.STATE)
             for state, action, cost in problem.getSuccessors(node.STATE):
-                nodePath = node.ACTION + [action]
+                nodePath = node.ACTIONS + [action]
                 priority = problem.getCostOfActions(nodePath) + heuristic(state, problem)
                 if state not in explored:
-                    frontier.push(Node(state, node, nodePath, priority), priority)
+                    frontier.push(Node(state, nodePath, priority), priority)
 
 # Abbreviations
 bfs = breadthFirstSearch
