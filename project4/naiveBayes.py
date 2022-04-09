@@ -61,9 +61,43 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         To get the list of all possible features or labels, use self.features and
         self.legalLabels.
         """
+        maxAccuracy = -1
+        totals = {}
+        values = {}
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for f in self.features:
+            totals[f] = util.Counter()
+            values[f] = {0: util.Counter(), 1: util.Counter()}
+
+        # prior distribution over labels
+        self.prior = util.Counter()
+        for i, data in enumerate(trainingData):
+            y = trainingLabels[i]
+            self.prior[y] += 1
+            for f, datum in data.items():
+                totals[f][y] += 1
+                values[f][datum][y] += 1
+        self.prior.normalize()
+
+        for k in kgrid:
+            self.condProbs = {}
+            for f in self.features:
+                self.condProbs[f] = {0: util.Counter(), 1: util.Counter()}
+
+                # laplace smoothing
+                for y in self.legalLabels:
+                    divisor = totals[f][y] + k * 2
+                    for b in [0,1]:
+                        self.condProbs[f][b][y] = (values[f][b][y] + k) / divisor
+
+            guesses = self.classify(validationData)
+            accuracy = [guesses[i] == validationLabels[i] for i in range(len(validationData))].count(True)
+
+            if accuracy > maxAccuracy:
+                maxAccuracy = accuracy
+                params = (self.condProbs, k)
+
+        self.condProbs, self.k = params
 
     def classify(self, testData):
         """
@@ -90,8 +124,12 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         logJoint = util.Counter()
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for l in self.legalLabels:
+            logJoint[l] = math.log(self.prior[l])
+            for c in self.condProbs:
+                logJoint[l] += math.log(self.condProbs[c][datum[c]][l])
+
+        return logJoint
 
     def findHighOddsFeatures(self, label1, label2):
         """
@@ -102,6 +140,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         featuresOdds = []
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        return featuresOdds
+        for f in self.features:
+            p1 = self.condProbs[f][1][label1]
+            p2 = self.condProbs[f][1][label2]
+            featuresOdds.append(((p1/p2), f))
+
+        return [f for r, f in sorted(featuresOdds)[-100:]]
