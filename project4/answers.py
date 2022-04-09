@@ -9,13 +9,9 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
 
 def q2():
-    
-    "*** YOUR CODE HERE ***"
-    return 
+    return 'a'
     
 
 def q4():
-    
-    "*** YOUR CODE HERE ***"
-    return 
+    return 'a'
     
