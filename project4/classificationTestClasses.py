@@ -225,7 +225,7 @@ class MultipleChoiceTest(testClasses.TestCase):
 
     def execute(self, grades, moduleDict, solutionDict):
         studentSolution = str(getattr(moduleDict['answers'], self.question)())
-        encryptedSolution = sha1(studentSolution.strip().lower()).hexdigest()
+        encryptedSolution = sha1(studentSolution.strip().lower().encode(encoding = 'UTF-8', errors = 'strict')).hexdigest()
         if encryptedSolution == self.ans:
             return self.testPass(grades)
         else:
