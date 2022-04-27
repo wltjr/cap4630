@@ -65,7 +65,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         values = {}
 
         for f in self.features:
-            values[f] = {0: util.Counter(), 1: util.Counter()}
+            values[f] = util.Counter()
 
         # prior distribution over labels
         self.prior = util.Counter()
@@ -73,20 +73,19 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             y = trainingLabels[i]
             self.prior[y] += 1
             for f, datum in data.items():
-                values[f][datum][y] += 1
+                if datum == 1:
+                    values[f][y] += 1
         totals = self.prior.copy()
         self.prior.normalize()
 
         for k in kgrid:
             self.condProbs = {}
             for f in self.features:
-                self.condProbs[f] = {0: util.Counter(), 1: util.Counter()}
+                self.condProbs[f] = util.Counter()
 
                 # laplace smoothing
                 for y in self.legalLabels:
-                    divisor = totals[y] + k * 2
-                    for b in [0,1]:
-                        self.condProbs[f][b][y] = (values[f][b][y] + k) / divisor
+                    self.condProbs[f][y] = (values[f][y] + k) / (totals[y] + k * 2)
 
             guesses = self.classify(validationData)
             accuracy = [guesses[i] == validationLabels[i] for i in range(len(validationData))].count(True)
@@ -125,7 +124,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         for l in self.legalLabels:
             logJoint[l] = math.log(self.prior[l])
             for c in self.condProbs:
-                logJoint[l] += math.log(self.condProbs[c][datum[c]][l])
+                prob = self.condProbs[c][l]
+                if datum[c] == 0:
+                    prob = 1 - prob
+                logJoint[l] += math.log(prob)
 
         return logJoint
 
@@ -139,8 +141,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         featuresOdds = []
 
         for f in self.features:
-            p1 = self.condProbs[f][1][label1]
-            p2 = self.condProbs[f][1][label2]
+            p1 = self.condProbs[f][label1]
+            p2 = self.condProbs[f][label2]
             featuresOdds.append(((p1/p2), f))
 
         return [f for r, f in sorted(featuresOdds)[-100:]]
