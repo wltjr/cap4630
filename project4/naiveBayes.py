@@ -64,19 +64,20 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         maxAccuracy = -1
         values = {}
 
+        # initialize pixel on counter
         for f in self.features:
             values[f] = util.Counter()
 
-        # prior distribution over labels
+        # prior distribution over labels, label probability
         self.prior = util.Counter()
         for i, data in enumerate(trainingData):
             y = trainingLabels[i]
-            self.prior[y] += 1
-            for f, datum in data.items():
+            self.prior[y] += 1                  # label count
+            for f, datum in data.items():       # check each pixel
                 if datum == 1:
-                    values[f][y] += 1
-        totals = self.prior.copy()
-        self.prior.normalize()
+                    values[f][y] += 1           # count pixel values at pixel f
+        totals = self.prior.copy()              # label count at pixel
+        self.prior.normalize()                  # calculate label probabilities
 
         for k in kgrid:
             self.condProbs = {}
@@ -122,12 +123,12 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         logJoint = util.Counter()
 
         for l in self.legalLabels:
-            logJoint[l] = math.log(self.prior[l])
+            logJoint[l] = math.log(self.prior[l])   # label probability
             for c in self.condProbs:
                 prob = self.condProbs[c][l]
                 if datum[c] == 0:
                     prob = 1 - prob
-                logJoint[l] += math.log(prob)
+                logJoint[l] += math.log(prob)       # label pixel probability
 
         return logJoint
 
