@@ -62,11 +62,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         self.legalLabels.
         """
         maxAccuracy = -1
-        totals = {}
         values = {}
 
         for f in self.features:
-            totals[f] = util.Counter()
             values[f] = {0: util.Counter(), 1: util.Counter()}
 
         # prior distribution over labels
@@ -75,8 +73,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             y = trainingLabels[i]
             self.prior[y] += 1
             for f, datum in data.items():
-                totals[f][y] += 1
                 values[f][datum][y] += 1
+        totals = self.prior.copy()
         self.prior.normalize()
 
         for k in kgrid:
@@ -86,7 +84,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
                 # laplace smoothing
                 for y in self.legalLabels:
-                    divisor = totals[f][y] + k * 2
+                    divisor = totals[y] + k * 2
                     for b in [0,1]:
                         self.condProbs[f][b][y] = (values[f][b][y] + k) / divisor
 
