@@ -61,41 +61,74 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         To get the list of all possible features or labels, use self.features and
         self.legalLabels.
         """
-        maxAccuracy = -1
-        values = {}
+        # dictionary for pixel counters
+        pixelCounts = {}
 
-        # initialize pixel on counter
+        # initialize counters for every pixel
         for f in self.features:
-            values[f] = util.Counter()
+            pixelCounts[f] = util.Counter()
 
-        # prior distribution over labels, label probability
-        self.prior = util.Counter()
-        for i, data in enumerate(trainingData):
-            y = trainingLabels[i]
-            self.prior[y] += 1                  # label count
-            for f, datum in data.items():       # check each pixel
-                if datum == 1:
-                    values[f][y] += 1           # count pixel values at pixel f
-        totals = self.prior.copy()              # label count at pixel
-        self.prior.normalize()                  # calculate label probabilities
+        # counter for label totals
+        labelTotals = util.Counter()
+ 
+        # for each picture in the training data
+        for i, pixels in enumerate(trainingData):
+            # total times each label has been seen
+            labelTotals[trainingLabels[i]] += 1
+            # for each pixel
+            for f, pixel in pixels.items():
+                # if the pixel is off
+                if pixel == 0:
+                    # increment the count, number of times pixel seen off
+                    pixelCounts[f][trainingLabels[i]] += 1
 
+        # copy label totals and normalize label probabilities
+        labelProbabilities = labelTotals.copy()
+        labelProbabilities.normalize()
+
+        # make global for use in other methods
+        self.labelProbabilities = labelProbabilities
+
+        # store best guess
+        bestGuess = -1
+
+        # for each k value
         for k in kgrid:
-            self.condProbs = {}
+            # create a dictionary of conditional probabilities counters
+            condtionalProbabilities = {}
+
+            # loop through each pixel
             for f in self.features:
-                self.condProbs[f] = util.Counter()
+                # initialize pixel conditional probabilities counter
+                condtionalProbabilities[f] = util.Counter()
+                
+                # perform laplace smoothing using equation
+                for label in self.legalLabels:
+                    # smoothing pixel at label
+                    condtionalProbabilities[f][label] = (pixelCounts[f][label] + k) / (labelTotals[label] + k * 2)
 
-                # laplace smoothing
-                for y in self.legalLabels:
-                    self.condProbs[f][y] = (values[f][y] + k) / (totals[y] + k * 2)
+            # make global for use in other methods
+            self.condtionalProbabilities = condtionalProbabilities
 
+            # get list of best guesses
             guesses = self.classify(validationData)
-            accuracy = [guesses[i] == validationLabels[i] for i in range(len(validationData))].count(True)
+            # store the count of correct guesses
+            correctCount = 0
+            # for every picture in the validation data
+            for i in range(len(validationData)):
+                # if the guess is the same increment the correct count
+                if guesses[i] == validationLabels[i]:
+                    correctCount += 1
 
-            if accuracy > maxAccuracy:
-                maxAccuracy = accuracy
-                params = (self.condProbs, k)
+            # compare the best guess to the current count of guesses
+            if bestGuess < correctCount:
+                # store current best guess, k, and conditional probabilities
+                bestGuess = correctCount
+                bestCondtionalProbabilities = condtionalProbabilities
+                self.k = k
 
-        self.condProbs, self.k = params
+        # make global for use in other methods
+        self.condtionalProbabilities = bestCondtionalProbabilities
 
     def classify(self, testData):
         """
@@ -122,13 +155,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         logJoint = util.Counter()
 
-        for l in self.legalLabels:
-            logJoint[l] = math.log(self.prior[l])   # label probability
-            for c in self.condProbs:
-                prob = self.condProbs[c][l]
-                if datum[c] == 0:
-                    prob = 1 - prob
-                logJoint[l] += math.log(prob)       # label pixel probability
+        for label in self.legalLabels:
+            # log probability for each label
+            logJoint[label] = math.log(self.labelProbabilities[label])
+            for conditional in self.condtionalProbabilities:
+                # probability of label at pixel
+                probability = self.condtionalProbabilities[conditional][label]
+                # check if pixel is on
+                if datum[conditional] == 1:
+                    # subtract from 1 since only tracking off pixels
+                    probability = 1 - probability
+                # add to the log join the log of the pixel probability
+                logJoint[label] += math.log(probability)
 
         return logJoint
 
@@ -141,9 +179,21 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         featuresOdds = []
 
+        # loop through each pixel, only care about odd, so only off
         for f in self.features:
-            p1 = self.condProbs[f][label1]
-            p2 = self.condProbs[f][label2]
-            featuresOdds.append(((p1/p2), f))
+            # get probability of label1 at pixel, 1 - for odd probability
+            probability1 = 1 - self.condtionalProbabilities[f][label1]
+            # get probability of label2 at pixel, 1 - for odd probability
+            probability2 = 1 - self.condtionalProbabilities[f][label2]
+            # get the ratio of label 1 probability / label 2 probability
+            oddsRatio = probability1 / probability2
+            # add the ratio at pixel to the list
+            featuresOdds.append((oddsRatio, f))
 
-        return [f for r, f in sorted(featuresOdds)[-100:]]
+        # sort the odd pixels
+        featuresOdds = sorted(featuresOdds)
+
+        # store the 100 best odd pixels
+        featuresOdds = [f for r, f in featuresOdds[-100:]]
+
+        return featuresOdds
