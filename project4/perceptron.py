@@ -55,14 +55,26 @@ class PerceptronClassifier:
         for iteration in range(self.max_iterations):
             print(("Starting iteration ", iteration, "..."))
             for i in range(len(trainingData)):
-                f = trainingData[i]
-                y = trainingLabels[i]
-                yPrime = self.classify([f])[0]
+                # get data 28 x 28 grid of pixels, f value for equation
+                dataF = trainingData[i]
+                # get label, y value for equation
+                labelY = trainingLabels[i]
 
-                # incorrect instance
-                if y != yPrime:
-                    self.weights[y] += f
-                    self.weights[yPrime] -= f
+                # scores counter dictionary, modified code from classify method
+                scores = util.Counter()
+                # score the weight of every label
+                for l in self.legalLabels:
+                    # add the score to the counter, score each class
+                    scores[l] = dataF * self.weights[l]
+
+                # get the max score, y' value for equation
+                labelYPrime = scores.argMax()
+
+                # wrong guess, y' != y
+                if labelYPrime != labelY:
+                    # guessed y' but should have guessed y
+                    self.weights[labelY] += dataF
+                    self.weights[labelYPrime] -= dataF
 
 
     def classify(self, data ):
@@ -85,5 +97,9 @@ class PerceptronClassifier:
         """
         Returns a list of the 100 features with the greatest weight for some label
         """
-        # 100 pixels with the largest weights
-        return self.weights[label].sortedKeys()[:100]
+        # sort the label weights
+        featuresWeights = self.weights[label].sortedKeys()
+        # get the 100 greatest weights for label
+        featuresWeights = featuresWeights[:100]
+
+        return featuresWeights
